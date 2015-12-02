@@ -7,6 +7,10 @@
 #include <gphoto2/gphoto2-camera.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include "helpers.h"
 
 
@@ -147,6 +151,37 @@ out:
 	return ret;
 }
 
+static void capture_to_file(Camera *camera, GPContext *context, char *fn) {
+	int fd, retval;
+	CameraFile *file;
+	CameraFilePath camera_file_path;
+
+	printf("Capturing.\n");
+
+	/* NOP: This gets overridden in the library to /capt0000.jpg */
+	strcpy(camera_file_path.folder, "/");
+	strcpy(camera_file_path.name, "foo.jpg");
+
+	retval = gp_camera_capture(camera, GP_CAPTURE_IMAGE, &camera_file_path, context);
+	printf("  Retval: %d\n", retval);
+
+	printf("Pathname on the camera: %s/%s\n", camera_file_path.folder, camera_file_path.name);
+
+	fd = open(fn, O_CREAT | O_WRONLY, 0644);
+	retval = gp_file_new_from_fd(&file, fd);
+	printf("  Retval: %d\n", retval);
+	retval = gp_camera_file_get(camera, camera_file_path.folder, camera_file_path.name,
+		     GP_FILE_TYPE_NORMAL, file, context);
+	printf("  Retval: %d\n", retval);
+
+	printf("Deleting.\n");
+	retval = gp_camera_file_delete(camera, camera_file_path.folder, camera_file_path.name,
+			context);
+	printf("  Retval: %d\n", retval);
+
+	gp_file_free(file);
+}
+
 char* get_iso(Camera *camera, GPContext *context) {
 
 	int ret;
@@ -155,8 +190,11 @@ char* get_iso(Camera *camera, GPContext *context) {
 	ret = get_config_value_string(camera, "iso", &iso, context);
 	if(ret >= GP_OK)
 		return iso;
-	else
+	else {
+		free(iso);
 		return NULL;
+	}
+
 
 }
 
@@ -180,8 +218,10 @@ char* get_aperture(Camera *camera, GPContext *context) {
 	ret = get_config_value_string(camera, "aperture", &aperture, context);
 	if(ret >= GP_OK)
 		return aperture;
-	else
+	else {
+		free(aperture);
 		return NULL;
+	}
 }
 
 int set_aperture(Camera *camera, GPContext *context, const char *aperture) {
@@ -203,8 +243,11 @@ char* get_shutterspeed(Camera *camera, GPContext *context) {
 	ret = get_config_value_string(camera, "shutterspeed", &shutterspeed, context);
 	if(ret >= GP_OK)
 		return shutterspeed;
-	else
+	else {
+		free(shutterspeed);
 		return NULL;
+	}
+
 
 }
 
@@ -228,6 +271,8 @@ char* get_battery(Camera *camera, GPContext *context) {
 	ret = get_config_value_string(camera, "batterylevel", &battery_level, context);
 	if(ret >= GP_OK)
 		return battery_level;
-	else
+	else {
+		free(battery_level);
 		return NULL;
+	}
 }

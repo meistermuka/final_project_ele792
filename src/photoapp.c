@@ -37,9 +37,6 @@ int main(void) {
 		return -1;
 	}
 
-	iso = get_iso(camera, context);
-
-
 	// Code clean up area
 	gp_camera_exit(camera, context);
 	gp_camera_free(camera);
