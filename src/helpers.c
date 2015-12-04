@@ -151,7 +151,8 @@ out:
 	return ret;
 }
 
-static void capture_to_file(Camera *camera, GPContext *context, char *fn) {
+void capture_to_file(Camera *camera, GPContext *context, char *fn) {
+
 	int fd, retval;
 	CameraFile *file;
 	CameraFilePath camera_file_path;
