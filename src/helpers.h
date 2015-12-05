@@ -15,6 +15,10 @@ static int _lookup_widget(CameraWidget*, const char *, CameraWidget **);
 
 void capture_to_file(Camera *, GPContext *, char *);
 
+void get_capture(Camera *, GPContext *);
+
+void get_folder_contents(Camera *, GPContext *, char *);
+
 char* get_iso(Camera *, GPContext *);
 int set_iso(Camera *, GPContext *, const char *);
 

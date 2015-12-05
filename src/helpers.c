@@ -11,6 +11,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <time.h>
 #include "helpers.h"
 
 
@@ -182,6 +183,97 @@ void capture_to_file(Camera *camera, GPContext *context, char *fn) {
 
 	gp_file_free(file);
 }
+
+void get_folder_contents(Camera *camera, GPContext *context, char *folder) {
+
+	CameraList *list;
+
+	int i, ret;
+	int list_count;
+	char *name, *value;
+
+	ret = gp_list_new(&list);
+	if(ret < GP_OK)
+		printf("No new list.\n");
+
+	ret = gp_camera_folder_list_files(camera,folder,list,context);
+	if(ret < GP_OK)
+		printf("Unable to list files.\n");
+
+	list_count = gp_list_count(list);
+	for(i = 0; i < list_count; i++) {
+
+		gp_list_get_name(list, i, &name);
+		gp_list_get_value(list, i, &value);
+
+		printf("Name: %s\n", name);
+		//printf("Value: %s\n", value);
+
+	}
+
+	gp_list_free(list);
+}
+
+
+void get_folder_contents();
+void get_capture(Camera *camera, GPContext *context) {
+
+	char *folder_one = "/store_00010001/DCIM/107D7000";
+	char *folder_two = "/store_00010001/DCIM/108D7000";
+	char *folder_three = "/store_00020001/DCIM/107D7000";
+	char *folder_four = "/store_00020001/DCIM/108D7000";
+	char *image_name = "/tmp/TST_%u.jpg";
+	char *feh_command = "feh --draw-exif --scale-down %s";
+	char buf[1024];
+	char cmdbuf[512];
+	time_t result = time(NULL);
+	char *name, *value;
+	CameraFilePath cfilepath;
+	CameraFileInfo info;
+	CameraFile *cfile;
+	int fd, ret, sysret;
+
+	if(result != -1)
+		sprintf(buf, image_name, result); //Sets the image name as /tmp/TST_unixtimestamp.jpg
+
+	sprintf(cmdbuf, feh_command, buf); //Sets FEH command as: feh --draw-exif --scale-down /tmp/TST_unixtimestamp.jpg
+
+	strcpy(cfilepath.folder, folder_four);
+	strcpy(cfilepath.name, "TST_001.jpg");
+
+	printf("Capturing image...\n");
+	ret = gp_camera_capture(camera, GP_CAPTURE_IMAGE, &cfilepath, context);
+	if(ret >= GP_OK)
+		printf("Image capture OK!\n");
+	else
+		printf("Image capture ERROR!\n");
+
+	fd = open(buf, O_CREAT | O_WRONLY, 0664);
+
+	ret = gp_file_new_from_fd(&cfile, fd);
+	if(ret >= GP_OK)
+		printf("New file descriptor OK!\n");
+	else
+		printf("New file descriptor ERROR!\n");
+
+	printf("Getting file from camera...\n");
+	ret = gp_camera_file_get(camera, cfilepath.folder, cfilepath.name, GP_FILE_TYPE_NORMAL, cfile, context);
+	if(ret >= GP_OK) {
+
+		printf("File copied from camera OK!\n");
+		printf("File located here: %s\n", buf);
+		sysret = system(cmdbuf);
+
+		if(sysret >= 0)
+			printf("feh executed OK!\n");
+
+	} else
+		printf("File copied from camera ERROR!\n");
+
+	gp_file_free(cfile);
+
+}
+
 
 char* get_iso(Camera *camera, GPContext *context) {
 
