@@ -27,10 +27,13 @@ int main(void) {
 		return -1;
 	}
 
-	ret = get_config_value_string(camera, "d182", &mode, context);
+	/*ret = get_config_value_string(camera, "d182", &mode, context);
 	if(ret >= GP_OK)
-		printf("Control mode is: %s\n", mode);
+		printf("Control mode is: %s\n", mode);*/
 
+	//get_capture(camera, context);
+
+	printf("Metering mode: %s\n", get_meteringmode_focus(camera, context));
 
 	// Code clean up area
 	gp_camera_exit(camera, context);

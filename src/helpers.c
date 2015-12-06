@@ -37,7 +37,6 @@ GPContext* create_context() {
 	return context;
 }
 
-
 static int _lookup_widget(CameraWidget*widget, const char *key, CameraWidget **child) {
 	int ret;
 	ret = gp_widget_get_child_by_name (widget, key, child);
@@ -45,7 +44,6 @@ static int _lookup_widget(CameraWidget*widget, const char *key, CameraWidget **c
 		ret = gp_widget_get_child_by_label (widget, key, child);
 	return ret;
 }
-
 
 int get_config_value_string (Camera *camera, const char *key, char **str, GPContext *context) {
 
@@ -152,38 +150,6 @@ out:
 	return ret;
 }
 
-void capture_to_file(Camera *camera, GPContext *context, char *fn) {
-
-	int fd, retval;
-	CameraFile *file;
-	CameraFilePath camera_file_path;
-
-	printf("Capturing.\n");
-
-	/* NOP: This gets overridden in the library to /capt0000.jpg */
-	strcpy(camera_file_path.folder, "/");
-	strcpy(camera_file_path.name, "foo.jpg");
-
-	retval = gp_camera_capture(camera, GP_CAPTURE_IMAGE, &camera_file_path, context);
-	printf("  Retval: %d\n", retval);
-
-	printf("Pathname on the camera: %s/%s\n", camera_file_path.folder, camera_file_path.name);
-
-	fd = open(fn, O_CREAT | O_WRONLY, 0644);
-	retval = gp_file_new_from_fd(&file, fd);
-	printf("  Retval: %d\n", retval);
-	retval = gp_camera_file_get(camera, camera_file_path.folder, camera_file_path.name,
-		     GP_FILE_TYPE_NORMAL, file, context);
-	printf("  Retval: %d\n", retval);
-
-	printf("Deleting.\n");
-	retval = gp_camera_file_delete(camera, camera_file_path.folder, camera_file_path.name,
-			context);
-	printf("  Retval: %d\n", retval);
-
-	gp_file_free(file);
-}
-
 void get_folder_contents(Camera *camera, GPContext *context, char *folder) {
 
 	CameraList *list;
@@ -214,8 +180,6 @@ void get_folder_contents(Camera *camera, GPContext *context, char *folder) {
 	gp_list_free(list);
 }
 
-
-void get_folder_contents();
 void get_capture(Camera *camera, GPContext *context) {
 
 	char *image_name = "/tmp/TST_%u.jpg";
@@ -269,7 +233,156 @@ void get_capture(Camera *camera, GPContext *context) {
 	gp_file_free(cfile);
 
 }
+/*
+char* get_exposure_comp(Camera *camera, GPContext *context) {
+	// TODO
+}
+int set_exposure_comp() {
+	// TODO
+}
 
+char* get_whitebalance(Camera *camera, GPContext *context) {
+	// TODO
+}
+int set_whitebalance() {
+	// TODO
+}
+*/
+char* get_meteringmode_focus(Camera *camera, GPContext *context) {
+
+	int ret;
+	char *meteringmode;
+
+	ret = get_config_value_string(camera, "focusmetermode", &meteringmode, context);
+	if(ret >= GP_OK)
+		return meteringmode;
+	else
+		return ret;
+}
+
+
+int set_meteringmode_focus(Camera *camera, GPContext *context, const char *meteringmodefocus) {
+	// TODO
+	int ret;
+
+	ret = set_config_value_string(camera, "focusmetermode", meteringmodefocus, context);
+	if(ret >= GP_OK)
+		return GP_OK;
+	else
+		return ret;
+}
+/*
+char* get_meteringmode_exposure(Camera *camera, GPContext *context) {
+	// TODO
+}
+
+int set_meteringmode_exposure(Camera *camera, GPContext *context, const char *meteringmodeexposure) {
+	// TODO
+}
+*/
+
+char* get_focusmode(Camera *camera, GPContext *context) {
+
+	int ret;
+	char *focusmode;
+
+	ret = get_config_value_string(camera, "focusmode", &focusmode, context);
+	if(ret >= GP_OK)
+		return focusmode;
+	else {
+		free(focusmode);
+		return NULL;
+	}
+}
+
+int set_focusmode(Camera *camera, GPContext *context, const char *focusmode) {
+
+	int ret;
+
+	ret = set_config_value_string(camera, "focusmode2", focusmode, context);
+	if(ret >= GP_OK)
+		return GP_OK;
+	else
+		return ret;
+}
+
+char* get_imagequality(Camera *camera, GPContext *context) {
+
+	int ret;
+	char *imagequality;
+
+	ret = get_config_value_string(camera, "imagequality", &imagequality, context);
+	if(ret >= GP_OK)
+		return imagequality;
+	else {
+		free(imagequality);
+		return NULL;
+	}
+}
+
+int set_imagequality(Camera *camera, GPContext *context, const char *imagequality) {
+	/*
+	Choice: 0 JPEG Basic
+	Choice: 1 JPEG Normal
+	Choice: 2 JPEG Fine
+	Choice: 3 NEF+Basic
+	Choice: 4 NEF+Normal
+	Choice: 5 NEF+Fine
+	Choice: 6 TIFF (RGB)
+	 */
+	int ret;
+
+	ret = set_config_value_string(camera, "imagequality", imagequality, context);
+	if(ret >= GP_OK)
+		return GP_OK;
+	else
+		return ret;
+
+}
+
+char* get_lensinfo(Camera *camera, GPContext *context) {
+
+	int ret;
+	char *minfocallength;
+	char *maxfocallength;
+	char *focallength;
+	char *lensinfo;
+
+	ret = get_config_value_string(camera, "focallength", &focallength, context);
+	if(ret >= GP_OK) {
+		strcpy(lensinfo, "Focal Length: ");
+		strcat(lensinfo, focallength);
+		strcat(lensinfo, "\n");
+	} else
+		printf("Error Code: %d\n", ret);
+
+	ret = get_config_value_string(camera, "minfocallength", &minfocallength, context);
+	if(ret >= GP_OK) {
+		strcat(lensinfo, "Min Focal Length: ");
+		strcat(lensinfo, minfocallength);
+		strcat(lensinfo,"\n");
+	} else
+		printf("Error Code: %d\n", ret);
+
+	ret = get_config_value_string(camera, "maxfocallength", &maxfocallength, context);
+	if(ret >= GP_OK) {
+		strcat(lensinfo, "Max Focal Length: ");
+		strcat(lensinfo, maxfocallength);
+		strcat(lensinfo, "\n");
+	} else
+		printf("Error Code: %d\n", ret);
+
+	free(minfocallength);
+	free(maxfocallength);
+	free(focallength);
+
+	return lensinfo;
+
+}
+/*
+char* get_flashinfo() {
+	// TODO
+}*/
 
 char* get_iso(Camera *camera, GPContext *context) {
 
@@ -283,8 +396,6 @@ char* get_iso(Camera *camera, GPContext *context) {
 		free(iso);
 		return NULL;
 	}
-
-
 }
 
 int set_iso(Camera *camera, GPContext *context, const char *iso) {
@@ -329,7 +440,7 @@ char* get_shutterspeed(Camera *camera, GPContext *context) {
 	int ret;
 	char *shutterspeed;
 
-	ret = get_config_value_string(camera, "shutterspeed", &shutterspeed, context);
+	ret = get_config_value_string(camera, "shutterspeed2", &shutterspeed, context);
 	if(ret >= GP_OK)
 		return shutterspeed;
 	else {
