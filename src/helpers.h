@@ -8,6 +8,11 @@
 #ifndef HELPERS_H_
 #define HELPERS_H_
 
+#define FOLDER_ONE 		"/store_00010001/DCIM/107D7000"
+#define FOLDER_TWO		"/store_00010001/DCIM/108D7000"
+#define FOLDER_THREE	"/store_00020001/DCIM/107D7000"
+#define FOLDER_FOUR		"/store_00020001/DCIM/108D7000"
+
 extern GPContext* create_context(void);
 extern int get_config_value_string (Camera *, const char *, char **, GPContext *);
 extern int set_config_value_string (Camera *, const char *, const char *, GPContext *);

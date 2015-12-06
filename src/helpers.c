@@ -218,10 +218,6 @@ void get_folder_contents(Camera *camera, GPContext *context, char *folder) {
 void get_folder_contents();
 void get_capture(Camera *camera, GPContext *context) {
 
-	char *folder_one = "/store_00010001/DCIM/107D7000";
-	char *folder_two = "/store_00010001/DCIM/108D7000";
-	char *folder_three = "/store_00020001/DCIM/107D7000";
-	char *folder_four = "/store_00020001/DCIM/108D7000";
 	char *image_name = "/tmp/TST_%u.jpg";
 	char *feh_command = "feh --draw-exif --scale-down %s";
 	char buf[1024];
@@ -238,7 +234,7 @@ void get_capture(Camera *camera, GPContext *context) {
 
 	sprintf(cmdbuf, feh_command, buf); //Sets FEH command as: feh --draw-exif --scale-down /tmp/TST_unixtimestamp.jpg
 
-	strcpy(cfilepath.folder, folder_four);
+	strcpy(cfilepath.folder, FOLDER_FOUR);
 	strcpy(cfilepath.name, "TST_001.jpg");
 
 	printf("Capturing image...\n");

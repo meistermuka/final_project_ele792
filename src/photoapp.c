@@ -20,7 +20,7 @@ int main(void) {
 
 	int ret;
 	// Camera specific variables
-	//char *owner;
+	char *mode;
 
 	Camera *camera;
 	GPContext *context;
@@ -37,7 +37,9 @@ int main(void) {
 		return -1;
 	}
 
-	get_capture(camera, context);
+	ret = get_config_value_string(camera, "d182", &mode, context);
+	if(ret >= GP_OK)
+		printf("Control mode is: %s\n", mode);
 
 
 	// Code clean up area
