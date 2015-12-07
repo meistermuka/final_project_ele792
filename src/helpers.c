@@ -233,21 +233,57 @@ void get_capture(Camera *camera, GPContext *context) {
 	gp_file_free(cfile);
 
 }
-/*
+
 char* get_exposure_comp(Camera *camera, GPContext *context) {
-	// TODO
+
+	int ret;
+	char *exposurecompensation;
+
+	ret = get_config_value_string(camera, "exposurecompensation", exposurecompensation, context);
+	if(ret >= GP_OK)
+		return exposurecompensation;
+	else {
+		free(exposurecompensation);
+		return NULL;
+	}
 }
-int set_exposure_comp() {
-	// TODO
+
+int set_exposure_comp(Camera *camera, GPContext *context, const char *exposurecomp) {
+
+	int ret;
+
+	ret = set_config_value_string(camera, "exposurecompensation", exposurecomp, context);
+	if(ret >= GP_OK)
+		return GP_OK;
+	else
+		return ret;
 }
 
 char* get_whitebalance(Camera *camera, GPContext *context) {
-	// TODO
+
+	int ret;
+	char *whitebalance;
+
+	ret = get_config_value_string(camera, "whitebalance", &whitebalance, context);
+	if(ret >= GP_OK)
+		return whitebalance;
+	else {
+		free(whitebalance);
+		return NULL;
+	}
 }
-int set_whitebalance() {
-	// TODO
+
+int set_whitebalance(Camera *camera, GPContext *context, const char *whitebalance) {
+
+	int ret;
+
+	ret = set_config_value_string(camera, "whitebalance", whitebalance, context);
+	if(ret >= GP_OK)
+		return GP_OK;
+	else
+		return ret;
 }
-*/
+
 char* get_meteringmode_focus(Camera *camera, GPContext *context) {
 
 	int ret;
@@ -260,9 +296,8 @@ char* get_meteringmode_focus(Camera *camera, GPContext *context) {
 		return ret;
 }
 
-
 int set_meteringmode_focus(Camera *camera, GPContext *context, const char *meteringmodefocus) {
-	// TODO
+
 	int ret;
 
 	ret = set_config_value_string(camera, "focusmetermode", meteringmodefocus, context);
@@ -271,15 +306,31 @@ int set_meteringmode_focus(Camera *camera, GPContext *context, const char *meter
 	else
 		return ret;
 }
-/*
+
 char* get_meteringmode_exposure(Camera *camera, GPContext *context) {
-	// TODO
+
+	int ret;
+	char *meteringmodeexposure;
+
+	ret = get_config_value_string(camera, "exposuremetermode", &meteringmodeexposure, context);
+	if(ret >= GP_OK)
+		return meteringmodeexposure;
+	else {
+		free(meteringmodeexposure);
+		return NULL;
+	}
 }
 
 int set_meteringmode_exposure(Camera *camera, GPContext *context, const char *meteringmodeexposure) {
-	// TODO
+
+	int ret;
+
+	ret = set_config_value_string(camera, "exposuremetermode", meteringmodeexposure, context);
+	if(ret >= GP_OK)
+		return GP_OK;
+	else
+		return ret;
 }
-*/
 
 char* get_focusmode(Camera *camera, GPContext *context) {
 
@@ -340,6 +391,7 @@ int set_imagequality(Camera *camera, GPContext *context, const char *imagequalit
 
 }
 
+// TODO: correct get_lensinfo
 char* get_lensinfo(Camera *camera, GPContext *context) {
 
 	int ret;

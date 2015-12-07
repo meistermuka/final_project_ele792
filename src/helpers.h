@@ -113,6 +113,16 @@
 #define EMETER_CENTER_WEIGHT	"Center Weighted"
 #define EMETER_MULTI_SPOT		"Multi Spot"
 #define EMETER_CENTER_SPOT		"Center Spot"
+// Whitebalance
+#define WBALANCE_AUTO			"Automatic"
+#define WBALANCE_DAYLIGHT		"Daylight"
+#define WBALANCE_FLUO			"Fluorescent"
+#define WBALANCE_TUNG			"Tungsten"
+#define WBALANCE_FLASH			"Flash"
+#define WBALANCE_CLOUDY			"Cloudy"
+#define WBALANCE_SHADE			"Shade"
+#define WBALANCE_C_TEMP			"Color Temperature"
+#define WBALANCE_PRESET			"Preset"
 
 
 extern GPContext* create_context(void);
