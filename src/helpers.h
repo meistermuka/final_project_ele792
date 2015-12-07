@@ -135,36 +135,27 @@ void capture_to_file(Camera *, GPContext *, char *);
 void get_capture(Camera *, GPContext *);
 
 void get_folder_contents(Camera *, GPContext *, char *);
-
 char* get_iso(Camera *, GPContext *);
 int set_iso(Camera *, GPContext *, const char *);
-
 char* get_aperture(Camera *, GPContext *);
 int set_aperture(Camera *, GPContext *, const char *);
-
 char* get_shutterspeed(Camera *, GPContext *);
 int set_shutterspeed(Camera *, GPContext *, const char *);
-
 char* get_battery(Camera *, GPContext *);
-
 char* get_exposure_comp(Camera *, GPContext *);
 int set_exposure_comp(Camera *, GPContext *, const char *);
-
 char* get_whitebalance(Camera *, GPContext *);
 int set_whitebalance(Camera *, GPContext *, const char *);
-
 char* get_meteringmode_focus(Camera *, GPContext *);
 int set_meteringmode_focus(Camera *, GPContext *, const char *);
-
 char* get_focusmode(Camera *, GPContext *);
 int set_focusmode(Camera *, GPContext *, const char *);
-
 char* get_imagequality(Camera *, GPContext *);
 int set_imagequality(Camera *, GPContext *, const char *);
-
 char* get_lensinfo(Camera *, GPContext *);
-
 char* get_flashinfo(Camera *, GPContext *);
+char* get_camerainfo(Camera *, GPContext *);
 
+int menu(void);
 
 #endif /* HELPERS_H_ */

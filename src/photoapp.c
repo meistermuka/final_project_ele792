@@ -5,10 +5,12 @@
 #include <gphoto2/gphoto2-camera.h>
 #include "helpers.h"
 
+#define CLEAR_TERM  printf("\033[2J\033[1;1H")
+
 
 int main(void) {
 
-	int ret;
+	int ret, cmd;
 	// Camera specific variables
 	char *mode;
 
@@ -19,7 +21,7 @@ int main(void) {
 	gp_camera_new(&camera);
 
 	ret = gp_camera_init(camera, context);
-	printf("=====PhotoApp v1.0=====\n");
+	//printf("=====PhotoApp v1.0=====\n");
 
 	if(ret < GP_OK) {
 		printf("No camera detected.\n");
@@ -27,13 +29,16 @@ int main(void) {
 		return -1;
 	}
 
-	/*ret = get_config_value_string(camera, "d182", &mode, context);
-	if(ret >= GP_OK)
-		printf("Control mode is: %s\n", mode);*/
+	while(cmd!=0) {
 
-	//get_capture(camera, context);
+		cmd = menu();
 
-	printf("Metering mode: %s\n", get_meteringmode_focus(camera, context));
+		switch(cmd) {
+			case 1:
+				printf("%s\n", get_camerainfo(camera, context));
+				break;
+		}
+	}
 
 	// Code clean up area
 	gp_camera_exit(camera, context);
@@ -43,3 +48,22 @@ int main(void) {
 	return EXIT_SUCCESS;
 
 }
+
+int menu(void) {
+
+	CLEAR_TERM;
+	int cmd = 0;
+
+	printf("=====| Photoapp v1.0 |=====\n");
+	printf("Choose a command:\n\n");
+	printf("1) Camera Info\n");
+	printf("0) Exit Program\n");
+	printf("\n===========================\n");
+
+	scanf("%d", cmd);
+	CLEAR_TERM;
+	return cmd;
+
+}
+
+

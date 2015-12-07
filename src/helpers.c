@@ -19,13 +19,10 @@ static void ctx_error_func (GPContext *context, const char *str, void *data) {
         fprintf  (stderr, "\n*** Contexterror ***              \n%s\n",str);
         fflush   (stderr);
 }
-
 static void ctx_status_func (GPContext *context, const char *str, void *data) {
         fprintf  (stderr, "%s\n", str);
         fflush   (stderr);
 }
-
-// from context.c
 GPContext* create_context() {
 
 	GPContext *context;
@@ -36,7 +33,6 @@ GPContext* create_context() {
 
 	return context;
 }
-
 static int _lookup_widget(CameraWidget*widget, const char *key, CameraWidget **child) {
 	int ret;
 	ret = gp_widget_get_child_by_name (widget, key, child);
@@ -45,7 +41,7 @@ static int _lookup_widget(CameraWidget*widget, const char *key, CameraWidget **c
 	return ret;
 }
 
-int get_config_value_string (Camera *camera, const char *key, char **str, GPContext *context) {
+int get_config_value_string(Camera *camera, const char *key, char **str, GPContext *context) {
 
 	CameraWidget *widget = NULL;
 	CameraWidget *child = NULL;
@@ -96,8 +92,7 @@ out:
 	return ret;
 
 }
-
-int set_config_value_string (Camera *camera, const char *key, const char *val, GPContext *context) {
+int set_config_value_string(Camera *camera, const char *key, const char *val, GPContext *context) {
 	CameraWidget		*widget = NULL, *child = NULL;
 	CameraWidgetType	type;
 	int			ret;
@@ -149,7 +144,6 @@ out:
 	gp_widget_free (widget);
 	return ret;
 }
-
 void get_folder_contents(Camera *camera, GPContext *context, char *folder) {
 
 	CameraList *list;
@@ -179,17 +173,14 @@ void get_folder_contents(Camera *camera, GPContext *context, char *folder) {
 
 	gp_list_free(list);
 }
-
 void get_capture(Camera *camera, GPContext *context) {
 
 	char *image_name = "/tmp/TST_%u.jpg";
-	char *feh_command = "feh --draw-exif --scale-down %s";
+	char *feh_command = "feh --draw-exif --scale-down %s &";
 	char buf[1024];
 	char cmdbuf[512];
 	time_t result = time(NULL);
-	char *name, *value;
 	CameraFilePath cfilepath;
-	CameraFileInfo info;
 	CameraFile *cfile;
 	int fd, ret, sysret;
 
@@ -247,7 +238,6 @@ char* get_exposure_comp(Camera *camera, GPContext *context) {
 		return NULL;
 	}
 }
-
 int set_exposure_comp(Camera *camera, GPContext *context, const char *exposurecomp) {
 
 	int ret;
@@ -258,7 +248,6 @@ int set_exposure_comp(Camera *camera, GPContext *context, const char *exposureco
 	else
 		return ret;
 }
-
 char* get_whitebalance(Camera *camera, GPContext *context) {
 
 	int ret;
@@ -272,7 +261,6 @@ char* get_whitebalance(Camera *camera, GPContext *context) {
 		return NULL;
 	}
 }
-
 int set_whitebalance(Camera *camera, GPContext *context, const char *whitebalance) {
 
 	int ret;
@@ -283,7 +271,6 @@ int set_whitebalance(Camera *camera, GPContext *context, const char *whitebalanc
 	else
 		return ret;
 }
-
 char* get_meteringmode_focus(Camera *camera, GPContext *context) {
 
 	int ret;
@@ -391,22 +378,25 @@ int set_imagequality(Camera *camera, GPContext *context, const char *imagequalit
 
 }
 
-// TODO: correct get_lensinfo
+
+// TODO: correct get_lensinfo error on focallength
 char* get_lensinfo(Camera *camera, GPContext *context) {
 
 	int ret;
+	char *lensinfo = (char *) malloc(1024);
 	char *minfocallength;
 	char *maxfocallength;
 	char *focallength;
-	char *lensinfo;
+
+	strcpy(lensinfo, "Lens Info\n");
 
 	ret = get_config_value_string(camera, "focallength", &focallength, context);
 	if(ret >= GP_OK) {
-		strcpy(lensinfo, "Focal Length: ");
+		strcat(lensinfo, "Focal Length: ");
 		strcat(lensinfo, focallength);
 		strcat(lensinfo, "\n");
 	} else
-		printf("Error Code: %d\n", ret);
+		printf("ERROR: %d on line (%u)\n", ret, __LINE__);
 
 	ret = get_config_value_string(camera, "minfocallength", &minfocallength, context);
 	if(ret >= GP_OK) {
@@ -414,7 +404,7 @@ char* get_lensinfo(Camera *camera, GPContext *context) {
 		strcat(lensinfo, minfocallength);
 		strcat(lensinfo,"\n");
 	} else
-		printf("Error Code: %d\n", ret);
+		printf("ERROR: %d on line (%u)\n", ret, __LINE__);
 
 	ret = get_config_value_string(camera, "maxfocallength", &maxfocallength, context);
 	if(ret >= GP_OK) {
@@ -422,7 +412,7 @@ char* get_lensinfo(Camera *camera, GPContext *context) {
 		strcat(lensinfo, maxfocallength);
 		strcat(lensinfo, "\n");
 	} else
-		printf("Error Code: %d\n", ret);
+		printf("ERROR: %d on line (%u)\n", ret, __LINE__);
 
 	free(minfocallength);
 	free(maxfocallength);
@@ -431,10 +421,118 @@ char* get_lensinfo(Camera *camera, GPContext *context) {
 	return lensinfo;
 
 }
-/*
-char* get_flashinfo() {
-	// TODO
-}*/
+
+char* get_flashinfo(Camera *camera, GPContext *context) {
+
+	int ret;
+	char *flashmode_value = (char *) malloc(1024);
+	char *flashmode;
+	char *nikonflashmode;
+	char *flashmodemanualpower;
+	char *flashsyncspeed;
+	char *flashshutterspeed;
+	char *flashexposurecompensation;
+	char *flashopen;
+	char *externalflash;
+
+	strcpy(flashmode_value, "Flash Info\n");
+
+	ret = get_config_value_string(camera, "flashmode", &flashmode, context);
+	if(ret >= GP_OK) {
+		strcat(flashmode_value, "Flash Mode: ");
+		strcat(flashmode_value, flashmode);
+		strcat(flashmode_value, "\n");
+	} else
+		printf("ERROR: %d on line (%u)\n", ret, __LINE__);
+
+	ret = get_config_value_string(camera, "nikonflashmode", &nikonflashmode, context);
+	if(ret >= GP_OK) {
+		strcat(flashmode_value, "Nikon Flash Mode: ");
+		strcat(flashmode_value, nikonflashmode);
+		strcat(flashmode_value, "\n");
+	} else
+		printf("ERROR: %d on line (%u)\n", ret, __LINE__);
+
+	ret = get_config_value_string(camera, "flashmodemanualpower", &flashmodemanualpower, context);
+	if(ret >= GP_OK) {
+		strcat(flashmode_value, "Manual Power: ");
+		strcat(flashmode_value, flashmodemanualpower);
+		strcat(flashmode_value, "\n");
+	} else
+		printf("ERROR: %d on line (%u)\n", ret, __LINE__);
+
+	ret = get_config_value_string(camera, "flashsyncspeed", &flashsyncspeed, context);
+	if(ret >= GP_OK) {
+		strcat(flashmode_value, "Sync Speed: ");
+		strcat(flashmode_value, flashsyncspeed);
+		strcat(flashmode_value, "\n");
+	} else
+		printf("ERROR: %d on line (%u)\n", ret, __LINE__);
+
+	ret = get_config_value_string(camera, "flashshutterspeed", &flashshutterspeed, context);
+	if(ret >= GP_OK) {
+		strcat(flashmode_value, "Shutter Speed: ");
+		strcat(flashmode_value, flashshutterspeed);
+		strcat(flashmode_value, "\n");
+	} else
+		printf("ERROR: %d on line (%u)\n", ret, __LINE__);
+
+	ret = get_config_value_string(camera, "flashexposurecompensation", &flashexposurecompensation, context);
+	if(ret >= GP_OK) {
+		strcat(flashmode_value, "Exposure Compensation: ");
+		strcat(flashmode_value, flashexposurecompensation);
+		strcat(flashmode_value, "\n");
+	} else
+		printf("ERROR: %d on line (%u)\n", ret, __LINE__);
+
+	ret = get_config_value_string(camera, "flashopen", &flashopen, context);
+	if(ret >= GP_OK) {
+
+	} else
+		printf("ERROR: %d on line (%u)\n", ret, __LINE__);
+
+	ret = get_config_value_string(camera, "externalflash", &externalflash, context);
+	if(ret >= GP_OK) {
+
+	} else
+		printf("ERROR: %d on line (%u)\n", ret, __LINE__);
+
+	free(flashsyncspeed);
+	free(flashshutterspeed);
+	free(flashexposurecompensation);
+	free(flashopen);
+	free(externalflash);
+	free(flashmode);
+	free(nikonflashmode);
+	free(flashmodemanualpower);
+
+	return flashmode_value;
+
+}
+
+char* get_camerainfo(Camera *camera, GPContext *context) {
+
+	int ret;
+	char *camerainfo = (char *) malloc(1024);
+	char *cameramodel;
+	char *manufacturer;
+	char *serialnumber;
+	char *deviceversion;
+
+	strcpy(camerainfo, "Camera Info\n");
+
+	ret = get_config_value_string(camera, "cameramodel", &cameramodel, context);
+	if(ret >= GP_OK) {
+		strcat(camerainfo, "Model: ");
+		strcat(camerainfo, cameramodel);
+		strcat(camerainfo, "\n");
+	} else
+		printf("ERROR: %d on line (%u)\n", ret, __LINE__);
+
+	free(cameramodel);
+
+	return camerainfo;
+}
 
 char* get_iso(Camera *camera, GPContext *context) {
 
@@ -449,7 +547,6 @@ char* get_iso(Camera *camera, GPContext *context) {
 		return NULL;
 	}
 }
-
 int set_iso(Camera *camera, GPContext *context, const char *iso) {
 
 	int ret;
@@ -461,7 +558,6 @@ int set_iso(Camera *camera, GPContext *context, const char *iso) {
 		return ret;
 
 }
-
 char* get_aperture(Camera *camera, GPContext *context) {
 
 	int ret;
@@ -475,7 +571,6 @@ char* get_aperture(Camera *camera, GPContext *context) {
 		return NULL;
 	}
 }
-
 int set_aperture(Camera *camera, GPContext *context, const char *aperture) {
 
 	int ret;
@@ -486,7 +581,6 @@ int set_aperture(Camera *camera, GPContext *context, const char *aperture) {
 	else
 		return ret;
 }
-
 char* get_shutterspeed(Camera *camera, GPContext *context) {
 
 	int ret;
@@ -502,7 +596,6 @@ char* get_shutterspeed(Camera *camera, GPContext *context) {
 
 
 }
-
 int set_shutterspeed(Camera *camera, GPContext *context, const char *shutterspeed) {
 
 	int ret;
@@ -514,7 +607,6 @@ int set_shutterspeed(Camera *camera, GPContext *context, const char *shutterspee
 		return ret;
 
 }
-
 char* get_battery(Camera *camera, GPContext *context) {
 
 	char *battery_level;
